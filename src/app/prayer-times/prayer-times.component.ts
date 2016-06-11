@@ -78,11 +78,12 @@ declare var moment: any;
 							self.placeQiblaOnMap();
 							self.getPrayerTimes();
 							self.searchLocation = '';
-						}else{
-							self.locationNotFound = true;
 						}
-						self.ngZone.run(function() { });
 					}
+					if (status === google.maps.GeocoderStatus.ZERO_RESULTS){
+						self.locationNotFound = true;
+					}
+					self.ngZone.run(function() { });
 				});
 			});
 		}
