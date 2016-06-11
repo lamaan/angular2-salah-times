@@ -35,7 +35,7 @@ export class PrayerTimesCalculatorService {
 		var dateMoment = moment(date, "YYYY-MM-DD").startOf('d').add(12, 'h');
 		var timeStamp = dateMoment.unix();
 		var url = 'https://maps.googleapis.com/maps/api/timezone/json?location=' + latitude + "," + longitude
-			+ "&timestamp=" + timeStamp+"&key=AIzaSyCckoyU8WKZBOyNvwiBpljj_i-80H2KdBk";
+			+ "&timestamp=" + timeStamp;
 		return this.http.get(url).map(this.extractData).catch(this.handleError);
 
 	}

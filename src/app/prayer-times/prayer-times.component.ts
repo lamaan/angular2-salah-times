@@ -41,8 +41,6 @@ declare var moment: any;
 		this.ishaAngle = 6;
 	}
 	ngAfterViewInit() {
-		this.placeQiblaOnMap();
-		this.getPrayerTimes();
 		var self = this;
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
@@ -51,6 +49,8 @@ declare var moment: any;
 				self.placeQiblaOnMap();
 				self.getPrayerTimes();
 			},function(e){
+				self.placeQiblaOnMap();
+				self.getPrayerTimes();
 				console.log("could not get your current location:"+e.message)
 			});
 		}
