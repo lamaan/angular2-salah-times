@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 declare var SunCalc: any;
 declare var moment: any;
 
-interface timeZoneInfo {
+export interface timeZoneInfo {
 	rawOffset: number,
 	dstOffset: number,
 	timeZoneName: string
@@ -16,6 +16,11 @@ export interface prayerTime
 { name: string, time: string }
 
 export interface prayerTimesForDay {
+	startOfLunarMonth:boolean,
+	//moonPhaseAtIsha:number,
+	//lunarCalandarDayAtIsha: number,
+	date:string,
+	formatedDate:string,
 	timeZoneName: string,
 	maghribIsAdjusted: boolean,
 	fajrIsAdjusted: boolean,
@@ -40,6 +45,7 @@ export class PrayerTimesCalculatorService {
 
 	}
 	private extractData(res: Response) {
+		console.log(res.json());
 		return res.json();
 	}
 	private handleError(error: any) {
@@ -75,9 +81,9 @@ export class PrayerTimesCalculatorService {
 	}
 	getAdjustedTimes(latitude: number, longitude: number, date: Date, utcOffset: number): any {
 		var unadjustedLatitude = latitude;
-		var increment = 0.001;
+		var increment = 0.1;
 		if (latitude > 0) {
-			increment = -0.001;
+			increment = -0.1;
 		}
 		var originaltimes = SunCalc.getTimes(date, latitude, longitude);
 		var times = SunCalc.getTimes(date, latitude, longitude);
@@ -105,9 +111,13 @@ export class PrayerTimesCalculatorService {
 		var minutesDifference = sunset.diff(noon, "minutes");
 		var midAfternoon = moment(noon).add(minutesDifference * 2.0 / 3.0, "minutes");
 		var timeFormat = "HH:mm:ss";
-
+		var moonAtIsha = SunCalc.getMoonIllumination(validFajrTimes.isha);
+		var ishaYesterday = moment(validFajrTimes.isha).subtract(1, 'd').toDate();;
+		var moonAtPreviousIsha = SunCalc.getMoonIllumination(ishaYesterday);
 		var response =
 			{
+				startOfLunarMonth: (moonAtPreviousIsha.phase > moonAtIsha.phase),
+	//			moonPhaseAtIsha: moonAtIsha.phase,
 				maghribIsAdjusted: validSunriseTimes.sunset.valueOf() != originaltimes.sunset.valueOf(),
 				fajrIsAdjusted: validFajrTimes.fajr.valueOf() != originaltimes.fajr.valueOf(),
 				unadjustedLatitude: unadjustedLatitude,
@@ -123,13 +133,14 @@ export class PrayerTimesCalculatorService {
 
 		return response;
 	}
+	getDefaultTimeZone(date: string, latitude: number, longitude: number){
+		return this.getTimeZone(date, latitude, longitude);
+	}
 	getPrayerTimes(date: string, latitude: number, longitude: number,
-		//utcOffset: number, 
+		timeZone:timeZoneInfo): prayerTimesForDay {
 
-		fajrAngle: number, ishaAngle): Observable<prayerTimesForDay> {
 		var self = this;
-		return this.getTimeZone(date, latitude, longitude)
-			.map<prayerTimesForDay>(function(timeZone: timeZoneInfo) {
+	
 				var dateMoment = moment().startOf('d').add(12, 'h');
 				if (date != "" && moment(date, "YYYY-MM-DD").isValid()) {
 					dateMoment = moment(date, "YYYY-MM-DD").add(12, 'h');
@@ -137,17 +148,19 @@ export class PrayerTimesCalculatorService {
 				var utcOffset = (timeZone.dstOffset + timeZone.rawOffset) / 3600.0;
 
 				SunCalc.addTime(-18, 'fajr', 'isha');
-				//SunCalc.addTime(-ishaAngle, 'opIsha', 'isha');
 				var times = self.getAdjustedTimes(latitude, longitude, dateMoment.toDate(), utcOffset);
-
 				return {
+					startOfLunarMonth: times.startOfLunarMonth,
+				//	moonPhaseAtIsha: times.moonPhaseAtIsha,
+				//	lunarCalandarDayAtIsha: 29.5306 * times.moonPhaseAtIsha,
+					date: date,
+					formatedDate:moment(dateMoment).format("ddd Do MMM"),
 					timeZoneName: timeZone.timeZoneName,
 					maghribIsAdjusted: times.maghribIsAdjusted,
 					fajrIsAdjusted: times.fajrIsAdjusted,
-					unadjustedLatitude: times.unadjustedLatitude,
 					fajrAdjustedLatitude: times.fajrAdjustedLatitude,
-					sunriseAdjustedLatitude: times.sunriseAdjustedLatitude
-					, times:
+					sunriseAdjustedLatitude: times.sunriseAdjustedLatitude,
+					times:
 					[
 						{
 							name: "fajr",
@@ -222,7 +235,6 @@ export class PrayerTimesCalculatorService {
 						// }
 					]
 				};
-			});
 
 	}
 }

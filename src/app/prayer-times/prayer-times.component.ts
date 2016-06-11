@@ -1,6 +1,6 @@
 import {Component, AfterViewInit, ViewChild} from '@angular/core'
 import {NgZone} from '@angular/core'
-import {PrayerTimesCalculatorService, prayerTime} from '../prayer-times-calculator.service';
+import {PrayerTimesCalculatorService, prayerTime, prayerTimesForDay, timeZoneInfo} from '../prayer-times-calculator.service';
 import {
 	MapsAPILoader, 
 	NoOpMapsAPILoader, 
@@ -29,6 +29,7 @@ declare var moment: any;
 	fajrAngle: number;
 	ishaAngle: number;
 	timeZone: string;
+	startOfLunarMonth: boolean;
 	fajrIsAdjusted: boolean;
 	fajrAdjustedLatitude: number;
 	maghribIsAdjusted: boolean;
@@ -36,6 +37,7 @@ declare var moment: any;
 	locationFound: string;
 	searchLocation: string;
 	locationNotFound: boolean=false;
+	showNewMonthLegend: boolean;
 	constructor(private prayerTimesCalculatorService: PrayerTimesCalculatorService,
 		private ngZone: NgZone) {
 		this.date = moment().format("YYYY-MM-DD");
@@ -77,6 +79,7 @@ declare var moment: any;
 							self.longitude = results[0].geometry.location.lng();
 							self.placeQiblaOnMap();
 							self.getPrayerTimes();
+							self.buildCalendar();
 							self.searchLocation = '';
 						}
 					}
@@ -127,24 +130,63 @@ declare var moment: any;
 
 		});
 	}
-	prayerTimes: [prayerTime]
-	getPrayerTimes() {
-		this.prayerTimesCalculatorService.getPrayerTimes(this.date,
-			this.latitude, this.longitude,
-			//this.utcOffset,
-			this.fajrAngle,
-			this.ishaAngle).subscribe(prayerTimesDay => {
-				this.prayerTimes = prayerTimesDay.times;
-				this.timeZone = prayerTimesDay.timeZoneName;
-				this.fajrIsAdjusted = prayerTimesDay.fajrIsAdjusted;
-				this.fajrAdjustedLatitude = prayerTimesDay.fajrAdjustedLatitude;
-				this.maghribIsAdjusted = prayerTimesDay.maghribIsAdjusted;
-				this.maghribAdjustedLatitude = prayerTimesDay.sunriseAdjustedLatitude;
+	prayerTimes: prayerTime[]=[]
+	calendar: prayerTimesForDay[] = [];
+	numberOfDaysInCalendar:number
+	buildingCalendar: boolean = false;
+	buildCalendar(){
+		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
+	}
+
+	calendarHeadings: string[] = []
+
+	getPrayerTimeTableForNextNDays(days:number){
+		var self = this;
+		self.showNewMonthLegend = false;
+		self.calendar = [];
+		if(days==null){
+			return;
+		}
+		return self.prayerTimesCalculatorService.getDefaultTimeZone(this.date, self.latitude, self.longitude)
+			.subscribe(timeZone => {
+				self.calendar = [];
+				var dateMoment = moment(self.date, "YYYY-MM-DD").startOf('d');
+				for (var i = 0; i < days; i++) {
+					var date = moment(dateMoment).add(i, 'd').format("YYYY-MM-DD");
+					self.calendar.push(self.getPrayerTimesForDate(date, timeZone));
+				}
+				var firstDay = self.calendar[0];
+				self.calendarHeadings = firstDay.times.map(function(time) {
+					return time.name;
+				});
+				self.showNewMonthLegend = self.calendar.some(function(day){
+					return day.startOfLunarMonth;
+				})
 			});
+	}
+	getPrayerTimes() {
+		var self = this;
+		return self.prayerTimesCalculatorService.getDefaultTimeZone(this.date, self.latitude, self.longitude)
+			.subscribe(timeZone => {
+				var prayerTimesDay = self.getPrayerTimesForDate(self.date, timeZone);
+				self.prayerTimes = prayerTimesDay.times;
+				self.startOfLunarMonth = prayerTimesDay.startOfLunarMonth;
+				self.timeZone = prayerTimesDay.timeZoneName;
+				self.fajrIsAdjusted = prayerTimesDay.fajrIsAdjusted;
+				self.fajrAdjustedLatitude = prayerTimesDay.fajrAdjustedLatitude;
+				self.maghribIsAdjusted = prayerTimesDay.maghribIsAdjusted;
+				self.maghribAdjustedLatitude = prayerTimesDay.sunriseAdjustedLatitude;
+			});
+	}
+	getPrayerTimesForDate(date:string,timeZone:timeZoneInfo) {
+		var self = this;
+		return self.prayerTimesCalculatorService.getPrayerTimes(date,
+			self.latitude, self.longitude, timeZone);
 	}
 	setDate(value: string) {
 		this.date = value;
 		this.getPrayerTimes();
+		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
 	}
 	setLatitude(value: number) {
 		this.latitude = value;
@@ -172,5 +214,6 @@ declare var moment: any;
 		this.longitude = $event.coords.lng;
 		this.placeQiblaOnMap();
 		this.getPrayerTimes();
+		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
     }
 }

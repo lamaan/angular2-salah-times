@@ -10,7 +10,7 @@
     </sebm-google-map>
     latitude: {{latitude}} , longitude: {{longitude}}<br/>
 
-    <h4>{{locationFound}} <input type="text" [(ngModel)]="searchLocation" placeholder="lookup a location"/>
+  <h4>{{locationFound}} <input type="text" [(ngModel)]="searchLocation" placeholder="lookup a location"/>
     <button type="button" (click)="searchForLocation()">Search</button>
     <div *ngIf="locationNotFound">
     	No location found
@@ -26,8 +26,44 @@
     <div *ngIf="maghribIsAdjusted">
     	Maghrib and Sunrise use adjusted latitude of {{maghribAdjustedLatitude}}
     </div>
+    <div *ngIf="!fajrIsAdjusted && !maghribIsAdjusted">
+    	No adjustments made for these times.
+    </div>
 	<ul>
 		<li *ngFor="let time of prayerTimes">
 			{{time.name}} : {{time.time}}
 		</li>
 	</ul>
+	<div *ngIf="startOfLunarMonth">
+		<p>At isha a new lunar month starts</p>
+	</div>
+   	<p>Build calendar for
+    <input type="number" min="1" max="31" [(ngModel)]="numberOfDaysInCalendar" value="7"/>
+     days
+    <button type="button" (click)="buildCalendar()">Build calendar</button></p>
+    <div *ngIf="buildingCalendar">
+    	building calendar ... please wait
+    </div>
+  	<table *ngIf="calendar.length>0" class="prayer-time-table">
+	  	 <thead>
+	  		<tr>
+	  			<th>Date</th>
+	  			<th *ngFor="let heading of calendarHeadings">
+	  				{{heading}}
+	  			</th>
+	  		</tr>
+	  	</thead>
+		<tbody>
+			<tr *ngFor="let day of calendar">
+				<td>{{day.formatedDate}}
+<span *ngIf="day.startOfLunarMonth">
+	*
+</span>
+				</td> 			
+				<td *ngFor="let time of day.times">
+					{{time.time}}
+				</td>
+			</tr>
+		</tbody>
+  	</table>
+  	<p *ngIf="showNewMonthLegend">*new lunar month starts at isha</p>

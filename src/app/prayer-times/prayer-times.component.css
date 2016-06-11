@@ -1,3 +1,11 @@
 .sebm-google-map-container {
 	  height: 400px;
 	}
+
+.prayer-time-table{
+	border-collapse: collapse;
+}
+.prayer-time-table td{
+	border: solid 1px black;
+	padding:8px;
+}
