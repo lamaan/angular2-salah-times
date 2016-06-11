@@ -2,19 +2,31 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Angular2SalahTimes</title>
+  <title>Worldwide Muslim Prayer Times and Direction</title>
   <base href="/">
 
-  {{#unless environment.production}}
+<!--   {{#unless environment.production}}
   <script src="/ember-cli-live-reload.js" type="text/javascript"></script>
-  {{/unless}}
+  {{/unless}} -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="site.css"/>
 </head>
 <body>
+<h1>Worldwide Muslim Prayer Times and Direction</h1>
   <angular2-salah-times-app>Loading...</angular2-salah-times-app>
 
-  
+  <div>
+      <h3>Notes:</h3>
+      This calculation uses adjustments for extreme latitudes to set fajr and isha times to the nearest location with a less extreme latitude where there is at least a four hour night between isha and fajr.<br/>
+<br/>
+      when there is less than six hours between maghrib and sunrise, these are adjusted to the nearest location with a less extreme latitude where there is at least a six hour night between maghrib and sunrise.<br/>
+<br/>
+      In this way there is a gradual change of prayer times as you go towards extreme latitudes which then allows a reasonable gap between the late night and early morning prayers to be kept. <br/>
+<br/>
+      Asr times are based on 2/3rds of the way between zuhr and maghrib
+<br/>
+    </div>
+    
 
     {{#each scripts.polyfills}}<script src="{{.}}"></script>{{/each}}
     <script>
@@ -22,10 +34,8 @@
         System.import('main');
       }).catch(console.error.bind(console));
     </script>
-
-  
-
-
-
+    <script src="vendor/suncalc/suncalc.js" type="text/javascript"></script>
+    <script src="vendor/moment/moment.js" type="text/javascript"></script>
+    <script src="vendor/angular2-google-maps/bundles/angular2-google-maps.js" type="text/javascript"></script>
 </body>
 </html>

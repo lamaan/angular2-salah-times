@@ -1,0 +1,49 @@
+<!--
+	<input type="number" #latitudeInput placeholder="latitude" value={{latitude}} (change)=setLatitude(latitudeInput.value)/>
+	<input type="number" #longitudeInput placeholder="longitude" value={{longitude}} (change)=setLongitude(longitudeInput.value)/>
+
+	<span>GMT+</span>
+	<input type="number" #utcOffsetInput placeholder="UTC Offset Hours" value={{utcOffset}} (change)=setUtcOffset(utcOffsetInput.value)/>
+	<span>hours</span><br/>
+	<br/>
+	<br/>
+	<br/>
+-->
+	<!--<span>Fajr angle</span>
+<input type="number" #fajrAngleInput placeholder="UTC Offset Hours" value={{fajrAngle}} 
+(change)=setFajrAngle(fajrAngleInput.value)/>
+	
+	<br/>
+	<br/>
+	<span>Isha angle</span>
+<input type="number" #ishaAngleInput placeholder="UTC Offset Hours" value={{ishaAngle}} 
+(change)=setIshaAngle(ishaAngleInput.value)/>
+	<br/>
+	<br/>
+-->
+	<sebm-google-map #theMapDirective
+		[latitude]="latitude" 
+		[longitude]="longitude"
+		(centerChange)="centreChanged($event, theMap)"
+		(mapClick)="mapClicked($event, theMap)">
+		 <sebm-google-map-marker
+          [latitude]="latitude"
+          [longitude]="longitude">
+      </sebm-google-map-marker>
+    </sebm-google-map>
+    latitude: {{latitude}} , longitude: {{longitude}}<br/>
+    <h3>Prayer Times for
+    <input type="date" #dateInput placeholder="YYYY-MM-DD" value={{date}} (change)=setDate(dateInput.value)/>
+	in {{timeZone}}:</h3>
+    
+    <div *ngIf="fajrIsAdjusted">
+    	Fajr and isha use adjusted latitude of {{fajrAdjustedLatitude}}
+    </div>
+    <div *ngIf="maghribIsAdjusted">
+    	Maghrib and Sunrise use adjusted latitude of {{maghribAdjustedLatitude}}
+    </div>
+	<ul>
+		<li *ngFor="let time of prayerTimes">
+			{{time.name}} : {{time.time}}
+		</li>
+	</ul>

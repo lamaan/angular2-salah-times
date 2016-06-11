@@ -2,6 +2,8 @@
 
 var Angular2App = require('angular-cli/lib/broccoli/angular2-app');
 
+var require=function(){};
+
 module.exports = function(defaults) {
   return new Angular2App(defaults, {
     vendorNpmFiles: [
@@ -11,7 +13,10 @@ module.exports = function(defaults) {
       'es6-shim/es6-shim.js',
       'reflect-metadata/**/*.+(js|js.map)',
       'rxjs/**/*.+(js|js.map)',
-      '@angular/**/*.+(js|js.map)'
+      '@angular/**/*.+(js|js.map)',
+      'angular2-google-maps/bundles/**/*.+(js)',
+      'moment/moment.js',
+      'suncalc/suncalc.js'
     ]
   });
 };

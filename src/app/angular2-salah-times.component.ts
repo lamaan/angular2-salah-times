@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-
+import {PrayerTimesComponent} from './prayer-times/prayer-times.component'
 @Component({
-  moduleId: module.id,
+ // moduleId: module.id,
   selector: 'angular2-salah-times-app',
-  templateUrl: 'angular2-salah-times.component.html',
-  styleUrls: ['angular2-salah-times.component.css']
+  templateUrl: './app/angular2-salah-times.component.html',
+  styleUrls: ['./app/angular2-salah-times.component.css'],
+  directives: [PrayerTimesComponent]
 })
 export class Angular2SalahTimesAppComponent {
-  title = 'angular2-salah-times works!';
+  title = 'Muslim Prayer Times and Directions';
 }
