@@ -1,4 +1,5 @@
-import {Component,AfterViewInit,ViewChild} from '@angular/core'
+import {Component, AfterViewInit, ViewChild} from '@angular/core'
+import {NgZone} from '@angular/core'
 import {PrayerTimesCalculatorService, prayerTime} from '../prayer-times-calculator.service';
 import {
 	MapsAPILoader, 
@@ -32,7 +33,11 @@ declare var moment: any;
 	fajrAdjustedLatitude: number;
 	maghribIsAdjusted: boolean;
 	maghribAdjustedLatitude: number;
-	constructor(private prayerTimesCalculatorService: PrayerTimesCalculatorService) {
+	locationFound: string;
+	searchLocation: string;
+	locationNotFound: boolean=false;
+	constructor(private prayerTimesCalculatorService: PrayerTimesCalculatorService,
+		private ngZone: NgZone) {
 		this.date = moment().format("YYYY-MM-DD");
 		this.latitude = 53.482863;
 		this.longitude = -2.3459968;
@@ -55,7 +60,49 @@ declare var moment: any;
 			});
 		}
 	}
+	searchForLocation(){
+		var self = this;
 
+		self.locationNotFound = false;
+		if (self.searchLocation != null && self.searchLocation != '') {
+			self.theMapDirective._mapsWrapper.getMap().then(function(map) {
+				var geocoder = new google.maps.Geocoder;
+				var infowindow = new google.maps.InfoWindow;
+				var latlng = { lat: self.latitude, lng: self.longitude };
+				geocoder.geocode({ 'address': self.searchLocation }, function(results, status) {
+					if (status === google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							self.locationFound = results[0].formatted_address;
+							self.latitude = results[0].geometry.location.lat();
+							self.longitude = results[0].geometry.location.lng();
+							self.placeQiblaOnMap();
+							self.getPrayerTimes();
+							self.searchLocation = '';
+						}else{
+							self.locationNotFound = true;
+						}
+						self.ngZone.run(function() { });
+					}
+				});
+			});
+		}
+	}
+	getLocationFound(){
+		var self = this;
+		self.theMapDirective._mapsWrapper.getMap().then(function(map) {
+			var geocoder = new google.maps.Geocoder;
+			var infowindow = new google.maps.InfoWindow;
+			var latlng = { lat: self.latitude, lng: self.longitude };
+			geocoder.geocode({ 'location': latlng }, function(results, status) {
+				if (status === google.maps.GeocoderStatus.OK) {
+					if(results[0]){
+						self.locationFound = results[0].formatted_address;
+						self.ngZone.run(function(){});
+					} 
+				}
+			});
+		});
+	}
 	placeQiblaOnMap() {
 		var self = this;
 
@@ -75,6 +122,8 @@ declare var moment: any;
 				strokeWeight: 2
 			});
 			self.qiblaLine.setMap(map);
+			self.getLocationFound();
+
 		});
 	}
 	prayerTimes: [prayerTime]
@@ -110,10 +159,14 @@ declare var moment: any;
 		this.ishaAngle = value;
 		this.getPrayerTimes();
 	}
+	setSearchLocation(value:string){
+		this.searchLocation = value;
+	}
 	centreChanged($event: MouseEvent, theMapDirective: any) {
 		// 	this.map._mapsWrapper.getMap().then(this.initialiseMap);
     }
 	mapClicked($event: MouseEvent, theMapDirective: any) {
+		this.locationNotFound = false;
 		this.latitude = $event.coords.lat;
 		this.longitude = $event.coords.lng;
 		this.placeQiblaOnMap();
