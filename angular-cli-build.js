@@ -2,8 +2,6 @@
 
 var Angular2App = require('angular-cli/lib/broccoli/angular2-app');
 
-//var require=function(){};
-
 module.exports = function(defaults) {
   return new Angular2App(defaults, {
     vendorNpmFiles: [
