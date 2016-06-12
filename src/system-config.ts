@@ -3,7 +3,7 @@
  **********************************************************************************************/
 /** Map relative paths to URLs. */
 const map: any = {
-  //'angular2-google-maps/core':'vendor/angular2-google-maps/core.js'
+  'angular2-google-maps':'vendor/angular2-google-maps',
   'moment':'vendor/moment/moment'
 };
 

@@ -62,6 +62,10 @@ declare var moment: any;
 			});
 		}
 	}
+	removeCalendar(){
+		this.numberOfDaysInCalendar = null;
+		this.buildCalendar();
+	}
 	searchForLocation(){
 		var self = this;
 

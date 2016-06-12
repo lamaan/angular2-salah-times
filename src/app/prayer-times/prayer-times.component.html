@@ -40,10 +40,8 @@
    	<p>Build calendar for
     <input type="number" min="1" max="31" [(ngModel)]="numberOfDaysInCalendar" value="7"/>
      days
-    <button type="button" (click)="buildCalendar()">Build calendar</button></p>
-    <div *ngIf="buildingCalendar">
-    	building calendar ... please wait
-    </div>
+    <button type="button" (click)="buildCalendar()">Build calendar</button>
+    <button *ngIf="calendar.length>0" type="button" (click)="removeCalendar()">X</button></p>
   	<table *ngIf="calendar.length>0" class="prayer-time-table">
 	  	 <thead>
 	  		<tr>

@@ -117,7 +117,6 @@ export class PrayerTimesCalculatorService {
 		var response =
 			{
 				startOfLunarMonth: (moonAtPreviousIsha.phase > moonAtIsha.phase),
-	//			moonPhaseAtIsha: moonAtIsha.phase,
 				maghribIsAdjusted: validSunriseTimes.sunset.valueOf() != originaltimes.sunset.valueOf(),
 				fajrIsAdjusted: validFajrTimes.fajr.valueOf() != originaltimes.fajr.valueOf(),
 				unadjustedLatitude: unadjustedLatitude,

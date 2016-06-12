@@ -1,6 +1,13 @@
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { enableProdMode,provide } from '@angular/core';
-import {ANGULAR2_GOOGLE_MAPS_PROVIDERS,LazyMapsAPILoaderConfig} from 'angular2-google-maps/core';
+import {
+	MapsAPILoader,
+	NoOpMapsAPILoader,
+	MouseEvent,
+	LazyMapsAPILoaderConfig,
+	ANGULAR2_GOOGLE_MAPS_PROVIDERS,
+	ANGULAR2_GOOGLE_MAPS_DIRECTIVES
+} from 'angular2-google-maps/core';
 import { HTTP_PROVIDERS } from '@angular/http';
 import { Angular2SalahTimesAppComponent, environment } from './app/';
 
