@@ -10,17 +10,67 @@
     </sebm-google-map>
     latitude: {{latitude}} , longitude: {{longitude}}<br/>
 
-  <h4>{{locationFound}} <input type="text" [(ngModel)]="searchLocation" placeholder="lookup a location"/>
-    <button type="button" (click)="searchForLocation()">Search</button>
-    <div *ngIf="locationNotFound">
-    	No location found
+  <h4> 
+  </h4> 
+  	<div class="row">
+  		<div class="col-md-6">
+  			<h4>{{locationFound}}</h4>
+  			<div *ngIf="locationNotFound">
+		    	No location found
+		    </div>
+		</div>
+  		<div class="col-md-6">
+  			<div class="input-group">
+    			<input class="form-control" type="text" [(ngModel)]="searchLocation" 
+    				placeholder="lookup a location"/>
+    			<span class="input-group-btn">
+    				<button class="btn btn-default" type="button"
+    				 (click)="searchForLocation()">
+    				 Search
+    				 </button>
+    			</span>
+
+  			</div>
+  		</div>
+  		<div>&nbsp;</div>
+		</div>
+		<div class="row">
+  
+  		<div class="col-md-6">
+  			<div class="form-group">
+                	<div class='input-group date' id='datetimepicker1'>
+	                    <input type='text' class="form-control" placeholder="YYYY-MM-DD" value={{date}} 
+	                    (change)=setDate(dateInput.value)/>
+	                    <span class="input-group-addon">
+	                        <span class="glyphicon glyphicon-calendar"></span>
+	                    </span>
+                	</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+			<div class="input-group">
+        		<input class="form-control" type="number" min="1" max="31" placeholder="Number of Days" 
+        		 [(ngModel)]="numberOfDaysInCalendar" value="7"/>
+    			<span class="input-group-btn">
+			      <button class="btn btn-default" type="button" (click)="buildCalendar()">
+			      	Build calendar
+			      </button>
+			    </span>
+ 			</div>
+  		</div>
     </div>
-  </h4>
-    <h3>Prayer Times for
-    <input type="date" #dateInput placeholder="YYYY-MM-DD" value={{date}} (change)=setDate(dateInput.value)/>
-	({{timeZone}})</h3>
-    
-    <div *ngIf="fajrIsAdjusted">
+	<h3>Prayer times  in {{timeZone}} for {{getFullDate()}}</h3>
+    <div class="row" >
+    	<div class="col-md-2" *ngFor="let time of prayerTimes">  
+    		<div class="time-name">{{time.name}}</div>
+    		<div class="main-time">{{time.time}}</div>
+    	</div>
+    	
+	</div>
+	<div *ngIf="startOfLunarMonth">
+		<p>At isha a new lunar month starts</p>
+	</div>
+	<div *ngIf="fajrIsAdjusted">
     	Fajr and isha use adjusted latitude of {{fajrAdjustedLatitude}}
     </div>
     <div *ngIf="maghribIsAdjusted">
@@ -29,39 +79,39 @@
     <div *ngIf="!fajrIsAdjusted && !maghribIsAdjusted">
     	No adjustments made for these times.
     </div>
-	<ul>
-		<li *ngFor="let time of prayerTimes">
-			{{time.name}} : {{time.time}}
-		</li>
-	</ul>
-	<div *ngIf="startOfLunarMonth">
-		<p>At isha a new lunar month starts</p>
+<div class="panel panel-default" *ngIf="calendar.length>0">
+	<div class="panel-heading">
+		<div class="pull-right">
+			<button class="btn btn-default" *ngIf="calendar.length>0" type="button" (click)="removeCalendar()">
+		    	X
+		    </button> 
+		<h4>Calculated Prayer times for {{locationFound}} in {{timeZone}}</h4>
+		    
+	    </div>
+	    <div class="clearfix"></div>
 	</div>
-   	<p>Build calendar for
-    <input type="number" min="1" max="31" [(ngModel)]="numberOfDaysInCalendar" value="7"/>
-     days
-    <button type="button" (click)="buildCalendar()">Build calendar</button>
-    <button *ngIf="calendar.length>0" type="button" (click)="removeCalendar()">X</button></p>
-  	<table *ngIf="calendar.length>0" class="prayer-time-table">
-	  	 <thead>
-	  		<tr>
-	  			<th>Date</th>
-	  			<th *ngFor="let heading of calendarHeadings">
-	  				{{heading}}
-	  			</th>
-	  		</tr>
-	  	</thead>
-		<tbody>
-			<tr *ngFor="let day of calendar">
-				<td>{{day.formatedDate}}
-<span *ngIf="day.startOfLunarMonth">
-	*
-</span>
-				</td> 			
-				<td *ngFor="let time of day.times">
-					{{time.time}}
-				</td>
-			</tr>
-		</tbody>
-  	</table>
-  	<p *ngIf="showNewMonthLegend">*new lunar month starts at isha</p>
+	<div class="panel-body">
+	   	<table  class="prayer-time-table table table-striped">
+		  	 <thead>
+		  		<tr>
+		  			<th>Date</th>
+		  			<th *ngFor="let heading of calendarHeadings">
+		  				{{heading}}
+		  			</th>
+		  		</tr>
+		  	</thead>
+			<tbody>
+				<tr *ngFor="let day of calendar" [ngClass]="{'new-lunar-month':day.startOfLunarMonth}">
+					<td>{{day.formatedDate}}
+						<span *ngIf="day.startOfLunarMonth">*</span>
+					</td> 			
+					<td *ngFor="let time of day.times">
+						{{time.time}}
+					</td>
+				</tr>
+			</tbody>
+	  	</table>
+	  	<p *ngIf="showNewMonthLegend">*new lunar month starts at isha</p>
+  	</div>
+</div>
+

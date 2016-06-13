@@ -132,6 +132,7 @@ export class PrayerTimesCalculatorService {
 
 		return response;
 	}
+		
 	getDefaultTimeZone(date: string, latitude: number, longitude: number){
 		return this.getTimeZone(date, latitude, longitude);
 	}

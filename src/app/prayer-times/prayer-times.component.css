@@ -9,3 +9,14 @@
 	border: solid 1px black;
 	padding:8px;
 }
+.new-lunar-month{
+	border-bottom: 5px solid purple;
+}
+.time-name{
+	font-size: large;
+	text-transform: capitalize;
+	padding-bottom: 5px;
+}
+.main-time{
+	font-size: large;
+}

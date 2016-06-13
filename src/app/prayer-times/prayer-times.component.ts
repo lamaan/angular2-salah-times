@@ -9,6 +9,7 @@ import {
 	MouseEvent, 
 	ANGULAR2_GOOGLE_MAPS_PROVIDERS,  
 	ANGULAR2_GOOGLE_MAPS_DIRECTIVES} from 'angular2-google-maps/core';
+declare var $: any;
 declare var google: any;
 declare var moment: any;
 @Component({
@@ -49,6 +50,12 @@ declare var moment: any;
 	}
 	ngAfterViewInit() {
 		var self = this;
+		$('#datetimepicker1').datetimepicker({
+			format: "YYYY-MM-DD",
+
+		}).on("dp.change",function(e) {
+			self.setDate(e.date.format("YYYY-MM-DD"));
+		});
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
 				self.latitude = p.coords.latitude;
@@ -61,6 +68,9 @@ declare var moment: any;
 				console.log("could not get your current location:"+e.message)
 			});
 		}
+	}
+	getFullDate() {
+		return moment(this.date).format("dddd Do MMMM");
 	}
 	removeCalendar(){
 		this.numberOfDaysInCalendar = null;
