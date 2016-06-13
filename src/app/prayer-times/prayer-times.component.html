@@ -61,7 +61,7 @@
     </div>
 	<h3>Prayer times  in {{timeZone}} for {{getFullDate()}}</h3>
     <div class="row" >
-    	<div class="col-md-2" *ngFor="let time of prayerTimes">  
+    	<div class="col-sm-2" *ngFor="let time of prayerTimes">  
     		<div class="time-name">{{time.name}}</div>
     		<div class="main-time">{{time.time}}</div>
     	</div>
@@ -85,9 +85,9 @@
 			<button class="btn btn-default" *ngIf="calendar.length>0" type="button" (click)="removeCalendar()">
 		    	X
 		    </button> 
-		<h4>Calculated Prayer times for {{locationFound}} in {{timeZone}}</h4>
 		    
 	    </div>
+		<h4>Calculated Prayer times for {{locationFound}} in {{timeZone}}</h4>
 	    <div class="clearfix"></div>
 	</div>
 	<div class="panel-body">
