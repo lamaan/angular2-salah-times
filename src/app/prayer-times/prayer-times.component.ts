@@ -226,8 +226,9 @@ declare var moment: any;
 		this.locationNotFound = false;
 		this.latitude = $event.coords.lat;
 		this.longitude = $event.coords.lng;
+		this.removeCalendar();
 		this.placeQiblaOnMap();
 		this.getPrayerTimes();
-		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
+		//this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
     }
 }

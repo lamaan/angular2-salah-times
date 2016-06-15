@@ -4,14 +4,25 @@
 /** Map relative paths to URLs. */
 const map: any = {
   'angular2-google-maps':'vendor/angular2-google-maps',
-  'moment':'vendor/moment/moment'
 };
 
 /** User packages configuration. */
 const packages: any = {
  // 'moment':{ defaultExtension: 'js' },
-  'angular2-google-maps': { defaultExtension: 'js' }
+  'angular2-google-maps': { defaultExtension: 'js' },
+
 };
+// cache busting snippet from https://github.com/systemjs/systemjs/issues/172
+declare var Promise: any;
+
+var systemLocate = System.locate;
+System.locate = function(load) {
+    var System = this;
+    return Promise.resolve(systemLocate.call(this, load)).then(function(address) {
+        return address + System.cacheBust;
+    });
+};
+System.cacheBust = '?v=' + 1.14;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************
@@ -45,10 +56,6 @@ barrels.forEach((barrelName: string) => {
 /** Type declaration for ambient System. */
 declare var System: any;
 
-
-//cliSystemConfigPackages['moment'] = { defaultExtension: 'js' };
-//cliSystemConfigPackages['angular2-google-maps'] = { defaultExtension: 'js' };
-//cliSystemConfigPackages['angular2-google-maps/core'] = { defaultExtension: 'js' };
 
 // Apply the CLI SystemJS configuration.
 System.config({

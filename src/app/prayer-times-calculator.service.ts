@@ -45,7 +45,6 @@ export class PrayerTimesCalculatorService {
 
 	}
 	private extractData(res: Response) {
-		console.log(res.json());
 		return res.json();
 	}
 	private handleError(error: any) {
@@ -81,9 +80,9 @@ export class PrayerTimesCalculatorService {
 	}
 	getAdjustedTimes(latitude: number, longitude: number, date: Date, utcOffset: number): any {
 		var unadjustedLatitude = latitude;
-		var increment = 0.1;
+		var increment = 0.01;
 		if (latitude > 0) {
-			increment = -0.1;
+			increment = -0.01;
 		}
 		var originaltimes = SunCalc.getTimes(date, latitude, longitude);
 		var times = SunCalc.getTimes(date, latitude, longitude);
