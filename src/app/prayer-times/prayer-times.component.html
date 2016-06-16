@@ -9,7 +9,7 @@
       </sebm-google-map-marker>
     </sebm-google-map>
     <div>&nbsp;</div>
-    <div *ngIf="calendar.length==0">
+    <div [hidden]="calendar.length>0">
 	    <div class="panel panel-default">
 			<div class="panel-heading">
 			<div class="pull-right">
@@ -21,11 +21,38 @@
 			</div>
 			<div class="panel-body">
 			    <div class="row" >
-			    	<div class="col-sm-2" *ngFor="let time of prayerTimes">  
-			    		<div class="time-name">{{time.name}}</div>
-			    		<div class="main-time">{{time.time}}</div>
-			    	</div>
-			    	
+				    <div class="col-md-6">
+				    	<div class="row">
+				    		<div class="col-xs-4">  
+			    				<div class="time-name">Fajr</div>
+			    				<div *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.fajr}}</div>
+			    			</div>
+			    			<div class="col-xs-4">  
+			    				<div class="time-name">Sunrise</div>
+			    				<div *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.sunrise}}</div>
+			    			</div>
+			    			<div class="col-xs-4">  
+			    				<div class="time-name">Zuhr</div>
+			    				<div *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.zuhr}}</div>
+			    			</div>
+				    	</div>
+				    </div>
+				    <div class="col-md-6">
+				    	<div class="row">
+				    		<div class="col-xs-4">  
+			    				<div class="time-name">Asr</div>
+			    				<div *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.asr}}</div>
+			    			</div>
+			    			<div class="col-xs-4">  
+			    				<div class="time-name">Maghrib</div>
+			    				<div *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.maghrib}}</div>
+			    			</div>
+			    			<div class="col-xs-4">  
+			    				<div class="time-name">Isha</div>
+			    				<div  *ngIf="prayerTimes.fajr" class="main-time">{{prayerTimes.isha}}</div>
+			    			</div>
+				    	</div>
+				    </div>
 				</div>
 				<div *ngIf="startOfLunarMonth">
 					<p>There is a new moon before isha</p>
@@ -109,8 +136,23 @@
 		  	 <thead>
 		  		<tr>
 		  			<th>Date</th>
-		  			<th *ngFor="let heading of calendarHeadings">
-		  				{{heading}}
+		  			<th>
+		  				fajr
+		  			</th>
+		  			<th>
+		  				sunrise
+		  			</th>
+		  			<th>
+		  				zuhr
+		  			</th>
+		  			<th>
+		  				asr
+		  			</th>
+		  			<th>
+		  				maghrib
+		  			</th>
+		  			<th>
+		  				isha
 		  			</th>
 		  		</tr>
 		  	</thead>
@@ -119,8 +161,23 @@
 					<td>{{day.formatedDate}}
 						<span *ngIf="day.startOfLunarMonth">*</span>
 					</td> 			
-					<td *ngFor="let time of day.times">
-						{{time.time}}
+					<td>
+						{{day.times.fajr}}
+					</td>
+					<td>
+						{{day.times.sunrise}}
+					</td>
+					<td>
+						{{day.times.zuhr}}
+					</td>
+					<td>
+						{{day.times.asr}}
+					</td>
+					<td>
+						{{day.times.maghrib}}
+					</td>
+					<td>
+						{{day.times.isha}}
 					</td>
 				</tr>
 			</tbody>

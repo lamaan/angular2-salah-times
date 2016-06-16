@@ -8,7 +8,6 @@ const map: any = {
 
 /** User packages configuration. */
 const packages: any = {
- // 'moment':{ defaultExtension: 'js' },
   'angular2-google-maps': { defaultExtension: 'js' },
 
 };
@@ -22,7 +21,7 @@ System.locate = function(load) {
         return address + System.cacheBust;
     });
 };
-System.cacheBust = '?v=' + 1.14;
+System.cacheBust = '?v=' + 1.19;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************

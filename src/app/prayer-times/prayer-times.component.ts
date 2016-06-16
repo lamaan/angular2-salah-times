@@ -50,12 +50,8 @@ declare var moment: any;
 	}
 	ngAfterViewInit() {
 		var self = this;
-		$('#datetimepicker1').datetimepicker({
-			format: "YYYY-MM-DD",
-
-		}).on("dp.change",function(e) {
-			self.setDate(e.date.format("YYYY-MM-DD"));
-		});
+		this.attachDatePicker();
+		
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
 				self.latitude = p.coords.latitude;
@@ -69,12 +65,21 @@ declare var moment: any;
 			});
 		}
 	}
+	attachDatePicker(){
+		var self = this;
+		$('#datetimepicker1').datetimepicker({
+			format: "YYYY-MM-DD",
+		}).on("dp.change", function(e) {
+			self.setDate(e.date.format("YYYY-MM-DD"));
+		});
+	}
 	getFullDate() {
 		return moment(this.date).format("dddd Do MMMM");
 	}
 	removeCalendar(){
 		this.numberOfDaysInCalendar = null;
 		this.buildCalendar();
+		this.attachDatePicker();
 	}
 	searchForLocation(){
 		var self = this;
@@ -152,8 +157,6 @@ declare var moment: any;
 		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
 	}
 
-	calendarHeadings: string[] = []
-
 	getPrayerTimeTableForNextNDays(days:number){
 		var self = this;
 		self.showNewMonthLegend = false;
@@ -170,9 +173,6 @@ declare var moment: any;
 					self.calendar.push(self.getPrayerTimesForDate(date, timeZone));
 				}
 				var firstDay = self.calendar[0];
-				self.calendarHeadings = firstDay.times.map(function(time) {
-					return time.name;
-				});
 				self.showNewMonthLegend = self.calendar.some(function(day){
 					return day.startOfLunarMonth;
 				})

@@ -150,8 +150,6 @@ export class PrayerTimesCalculatorService {
 				var times = self.getAdjustedTimes(latitude, longitude, dateMoment.toDate(), utcOffset);
 				return {
 					startOfLunarMonth: times.startOfLunarMonth,
-				//	moonPhaseAtIsha: times.moonPhaseAtIsha,
-				//	lunarCalandarDayAtIsha: 29.5306 * times.moonPhaseAtIsha,
 					date: date,
 					formatedDate:moment(dateMoment).format("ddd Do MMM"),
 					timeZoneName: timeZone.timeZoneName,
@@ -159,80 +157,7 @@ export class PrayerTimesCalculatorService {
 					fajrIsAdjusted: times.fajrIsAdjusted,
 					fajrAdjustedLatitude: times.fajrAdjustedLatitude,
 					sunriseAdjustedLatitude: times.sunriseAdjustedLatitude,
-					times:
-					[
-						{
-							name: "fajr",
-							time: times.fajr
-						},
-						{
-							name: "sunrise",
-							time: times.sunrise
-						},
-						{
-							name: "zuhr",
-							time: times.zuhr
-						}
-						,
-						{
-							name: "asr",
-							time: times.asr
-						},
-						{
-							name: "maghrib",
-							time: times.maghrib
-						},
-						{
-							name: "isha",
-							time: times.isha
-						}
-
-						// {
-						// 	name:"nautical dawn",
-						// 	time:moment(times.nauticalDawn).utcOffset(utcOffset).format("H:mm:ss")
-						// },
-						// {
-						// 	name:"dawn",
-						// 	time:moment(times.dawn).utcOffset(utcOffset).format("H:mm:ss")
-						// },
-						// {
-						// 	name: "fajr",
-						// 	time: moment(times.fajr).utcOffset(utcOffset).format("H:mm:ss")
-						// },
-						// {
-						// 	name: "sunrise",
-						// 	time: moment(times.sunrise).utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// ,
-						// {
-						// 	name: "zuhr",
-						// 	time: noon.utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// , {
-						// 	name: "asr",
-						// 	time: midAfternoon.utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// ,
-						// {
-						// 	name: "maghrib",
-						// 	time: sunset.utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// ,
-						// {
-						// 	name: "isha",
-						// 	time: moment(times.isha).utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// 		,
-						// {
-						// 	name:"dusk",
-						// 	time:moment(times.dusk).utcOffset(utcOffset).format("H:mm:ss")
-						// }
-						// ,
-						// {
-						// 	name:"nautical dusk",
-						// 	time:moment(times.nauticalDusk).utcOffset(utcOffset).format("H:mm:ss")
-						// }
-					]
+					times:times
 				};
 
 	}

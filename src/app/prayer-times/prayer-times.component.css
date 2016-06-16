@@ -13,9 +13,21 @@
 	border-bottom: 5px solid purple;
 }
 .time-name{
-	font-size: large;
 	text-transform: capitalize;
 }
-.main-time{
-	font-size: large;
+@media (max-width:767px){
+	.time-name{
+		font-size:medium; ;
+	}
+	.main-time{
+		font-size: medium;
+	}
+}
+@media (min-width:768px){
+	.time-name{
+		font-size:large; ;
+	}
+	.main-time{
+		font-size: large;
+	}
 }

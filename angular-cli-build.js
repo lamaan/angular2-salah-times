@@ -16,5 +16,11 @@ module.exports = function(defaults) {
       'moment/moment.js',
       'suncalc/suncalc.js'
     ]
+    // ,polyfills:[
+    //   "libraries/suncalc.js",
+    //   "libraries/moment.js",
+    //   "libraries/bootstrap.min.js",
+    //   "libraries/bootstrap-datetimepicker.min.js"
+    // ]
   });
 };
