@@ -4,11 +4,17 @@
 /** Map relative paths to URLs. */
 const map: any = {
   'angular2-google-maps':'vendor/angular2-google-maps',
+  'moment':'vendor/moment/moment.js',
+  'SunCalc':'vendor/suncalc/suncalc.js',
+  'ng2-bootstrap': 'vendor/ng2-bootstrap'
 };
 
 /** User packages configuration. */
 const packages: any = {
   'angular2-google-maps': { defaultExtension: 'js' },
+  'moment':{format:"global"},
+  'SunCalc':{format:"global"},
+  'ng2-bootstrap': { defaultExtension: 'js' }
 
 };
 // cache busting snippet from https://github.com/systemjs/systemjs/issues/172
@@ -21,7 +27,7 @@ System.locate = function(load) {
         return address + System.cacheBust;
     });
 };
-System.cacheBust = '?v=' + 1.19;
+System.cacheBust = '?v=' + 1.23;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************

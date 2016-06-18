@@ -13,6 +13,7 @@ module.exports = function(defaults) {
       'rxjs/**/*.+(js|js.map)',
       '@angular/**/*.+(js|js.map)',
       'angular2-google-maps/**/*.+(js|js.map)',
+      'ng2-bootstrap/**/*.+(js|js.map)',
       'moment/moment.js',
       'suncalc/suncalc.js'
     ]

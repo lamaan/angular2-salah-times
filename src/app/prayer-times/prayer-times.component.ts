@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, ViewChild} from '@angular/core'
+import {Component, AfterViewInit, ViewChild, ViewContainerRef} from '@angular/core'
 import {NgZone} from '@angular/core'
 import {PrayerTimesCalculatorService, prayerTime, prayerTimesForDay, timeZoneInfo} from '../prayer-times-calculator.service';
 import {
@@ -9,6 +9,9 @@ import {
 	MouseEvent, 
 	ANGULAR2_GOOGLE_MAPS_PROVIDERS,  
 	ANGULAR2_GOOGLE_MAPS_DIRECTIVES} from 'angular2-google-maps/core';
+import {AlertComponent, DATEPICKER_DIRECTIVES, MODAL_DIRECTVES} from 'ng2-bootstrap/ng2-bootstrap';
+import {BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
+import 'moment';
 declare var $: any;
 declare var google: any;
 declare var moment: any;
@@ -17,11 +20,12 @@ declare var moment: any;
 	templateUrl: './app/prayer-times/prayer-times.component.html',
   styleUrls: ['./app/prayer-times/prayer-times.component.css'],
   selector: 'prayer-times',
-  directives: [ANGULAR2_GOOGLE_MAPS_DIRECTIVES],
-  providers: [PrayerTimesCalculatorService, GoogleMapsAPIWrapper]
+  directives: [ANGULAR2_GOOGLE_MAPS_DIRECTIVES, DATEPICKER_DIRECTIVES, MODAL_DIRECTVES],
+  providers: [PrayerTimesCalculatorService, GoogleMapsAPIWrapper],
+  viewProviders:[BS_VIEW_PROVIDERS],
 }) export class PrayerTimesComponent implements AfterViewInit {
 	@ViewChild('theMapDirective') theMapDirective: any;
-	date: string;
+	date: Date;
 	latitude: number;
 	longitude: number;
 	//	utcOffset:number;
@@ -32,14 +36,15 @@ declare var moment: any;
 	timeZone: string;
 	startOfLunarMonth: boolean;
 	fajrIsAdjusted: boolean;
-	fajrAdjustedLatitude: number;
+	fajrIsAdjustedEarlier: boolean;
+	maghribIsAdjustedLater: boolean;
 	maghribIsAdjusted: boolean;
-	maghribAdjustedLatitude: number;
 	locationFound: string;
 	searchLocation: string;
 	locationNotFound: boolean=false;
 	showNewMonthLegend: boolean;
 	constructor(private prayerTimesCalculatorService: PrayerTimesCalculatorService,
+		private viewContainerRef: ViewContainerRef,
 		private ngZone: NgZone) {
 		this.date = moment().format("YYYY-MM-DD");
 		this.latitude = 53.482863;
@@ -50,8 +55,6 @@ declare var moment: any;
 	}
 	ngAfterViewInit() {
 		var self = this;
-		this.attachDatePicker();
-		
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
 				self.latitude = p.coords.latitude;
@@ -65,21 +68,12 @@ declare var moment: any;
 			});
 		}
 	}
-	attachDatePicker(){
-		var self = this;
-		$('#datetimepicker1').datetimepicker({
-			format: "YYYY-MM-DD",
-		}).on("dp.change", function(e) {
-			self.setDate(e.date.format("YYYY-MM-DD"));
-		});
-	}
 	getFullDate() {
 		return moment(this.date).format("dddd Do MMMM");
 	}
 	removeCalendar(){
 		this.numberOfDaysInCalendar = null;
 		this.buildCalendar();
-		this.attachDatePicker();
 	}
 	searchForLocation(){
 		var self = this;
@@ -164,12 +158,12 @@ declare var moment: any;
 		if(days==null){
 			return;
 		}
-		return self.prayerTimesCalculatorService.getDefaultTimeZone(this.date, self.latitude, self.longitude)
+		return self.prayerTimesCalculatorService.getDefaultTimeZone(self.date, self.latitude, self.longitude)
 			.subscribe(timeZone => {
 				self.calendar = [];
-				var dateMoment = moment(self.date, "YYYY-MM-DD").startOf('d');
+				var dateMoment = moment(self.date).startOf('d');
 				for (var i = 0; i < days; i++) {
-					var date = moment(dateMoment).add(i, 'd').format("YYYY-MM-DD");
+					var date = moment(dateMoment).add(i, 'd');
 					self.calendar.push(self.getPrayerTimesForDate(date, timeZone));
 				}
 				var firstDay = self.calendar[0];
@@ -180,55 +174,33 @@ declare var moment: any;
 	}
 	getPrayerTimes() {
 		var self = this;
-		return self.prayerTimesCalculatorService.getDefaultTimeZone(this.date, self.latitude, self.longitude)
+		return self.prayerTimesCalculatorService.getDefaultTimeZone(self.date, self.latitude, self.longitude)
 			.subscribe(timeZone => {
 				var prayerTimesDay = self.getPrayerTimesForDate(self.date, timeZone);
 				self.prayerTimes = prayerTimesDay.times;
 				self.startOfLunarMonth = prayerTimesDay.startOfLunarMonth;
 				self.timeZone = prayerTimesDay.timeZoneName;
 				self.fajrIsAdjusted = prayerTimesDay.fajrIsAdjusted;
-				self.fajrAdjustedLatitude = prayerTimesDay.fajrAdjustedLatitude;
 				self.maghribIsAdjusted = prayerTimesDay.maghribIsAdjusted;
-				self.maghribAdjustedLatitude = prayerTimesDay.sunriseAdjustedLatitude;
+				self.fajrIsAdjustedEarlier = prayerTimesDay.fajrIsAdjustedEarlier;
+				self.maghribIsAdjustedLater = prayerTimesDay.maghribIsAdjustedLater;
 			});
 	}
-	getPrayerTimesForDate(date:string,timeZone:timeZoneInfo) {
+	getPrayerTimesForDate(date:Date,timeZone:timeZoneInfo) {
 		var self = this;
 		return self.prayerTimesCalculatorService.getPrayerTimes(date,
 			self.latitude, self.longitude, timeZone);
 	}
-	setDate(value: string) {
-		this.date = value;
+	dateChanged(){
 		this.getPrayerTimes();
 		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
 	}
-	setLatitude(value: number) {
-		this.latitude = value;
-	}
-	setLongitude(value: number) {
-		this.longitude = value;
-	}
-	setFajrAngle(value: number) {
-		this.fajrAngle = value;
-		this.getPrayerTimes();
-	}
-	setIshaAngle(value: number) {
-		this.ishaAngle = value;
-		this.getPrayerTimes();
-	}
-	setSearchLocation(value:string){
-		this.searchLocation = value;
-	}
-	centreChanged($event: MouseEvent, theMapDirective: any) {
-		// 	this.map._mapsWrapper.getMap().then(this.initialiseMap);
-    }
 	mapClicked($event: MouseEvent, theMapDirective: any) {
 		this.locationNotFound = false;
 		this.latitude = $event.coords.lat;
 		this.longitude = $event.coords.lng;
-		this.removeCalendar();
 		this.placeQiblaOnMap();
 		this.getPrayerTimes();
-		//this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
+		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
     }
 }

@@ -4,9 +4,11 @@
 
 .prayer-time-table{
 	border-collapse: collapse;
+	font-size:medium;
 }
 .prayer-time-table td{
 	border: solid 1px black;
+	font-size:medium;
 	padding:8px;
 }
 .new-lunar-month{
@@ -17,15 +19,25 @@
 }
 @media (max-width:767px){
 	.time-name{
-		font-size:medium; ;
+		font-size: medium;
 	}
 	.main-time{
 		font-size: medium;
 	}
+	.prayer-time-table th{
+		font-weight: normal;
+		font-size: small;
+		padding:3px;
+	}
+	.prayer-time-table td{
+		font-weight: normal;
+		font-size: small;
+		padding:3px;
+	}
 }
 @media (min-width:768px){
 	.time-name{
-		font-size:large; ;
+		font-size:large; 
 	}
 	.main-time{
 		font-size: large;

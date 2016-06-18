@@ -1,5 +1,6 @@
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { enableProdMode,provide } from '@angular/core';
+import {AlertComponent, DATEPICKER_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap';
 import {
 	MapsAPILoader,
 	NoOpMapsAPILoader,
@@ -15,7 +16,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-bootstrap(Angular2SalahTimesAppComponent, [ANGULAR2_GOOGLE_MAPS_PROVIDERS, HTTP_PROVIDERS,
+bootstrap(Angular2SalahTimesAppComponent, [ANGULAR2_GOOGLE_MAPS_PROVIDERS, HTTP_PROVIDERS, DATEPICKER_DIRECTIVES,
 	provide(LazyMapsAPILoaderConfig, {
 		useFactory: () => {
 			let config = new LazyMapsAPILoaderConfig();

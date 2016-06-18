@@ -3,7 +3,8 @@ import { Http, Response } from '@angular/http';
 //import { Observable }     from 'rxjs/Observable';
 import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
-
+import 'moment';
+import 'SunCalc';
 declare var SunCalc: any;
 declare var moment: any;
 
@@ -19,13 +20,13 @@ export interface prayerTimesForDay {
 	startOfLunarMonth:boolean,
 	//moonPhaseAtIsha:number,
 	//lunarCalandarDayAtIsha: number,
-	date:string,
+	date:Date,
 	formatedDate:string,
 	timeZoneName: string,
 	maghribIsAdjusted: boolean,
 	fajrIsAdjusted: boolean,
-	fajrAdjustedLatitude: number,
-	sunriseAdjustedLatitude: number,
+	fajrIsAdjustedEarlier: boolean,
+	maghribIsAdjustedLater: boolean,
 	times: [prayerTime]
 }
 
@@ -36,8 +37,8 @@ export class PrayerTimesCalculatorService {
 	constructor(private http: Http) {
 
 	}
-	getTimeZone(date: string, latitude: number, longitude: number): Observable<timeZoneInfo> {
-		var dateMoment = moment(date, "YYYY-MM-DD").startOf('d').add(12, 'h');
+	getTimeZone(date: Date, latitude: number, longitude: number): Observable<timeZoneInfo> {
+		var dateMoment = moment(date).startOf('d').add(12, 'h');
 		var timeStamp = dateMoment.unix();
 		var url = 'https://maps.googleapis.com/maps/api/timezone/json?location=' + latitude + "," + longitude
 			+ "&timestamp=" + timeStamp;
@@ -84,65 +85,116 @@ export class PrayerTimesCalculatorService {
 		if (latitude > 0) {
 			increment = -0.01;
 		}
-		var originaltimes = SunCalc.getTimes(date, latitude, longitude);
+//		var originaltimes = SunCalc.getTimes(date, latitude, longitude);
 		var times = SunCalc.getTimes(date, latitude, longitude);
-		while (Math.abs(latitude) > 10 && (
-			!moment(times.sunrise).isValid()
-			|| !this.hasNormalFullDaylightLength(times)
-		)) {
-			latitude = latitude + increment;
-			times = SunCalc.getTimes(date, latitude, longitude);
-		}
-		var validSunriseTimes = times;
-		var sunriseAdjustedLatitude = latitude;
-		while (Math.abs(latitude) > 10 && (
-			!moment(times.fajr).isValid()
-			|| !this.hasNormalDayLength(times)
-		)) {
-			latitude = latitude + increment;
-			times = SunCalc.getTimes(date, latitude, longitude);
-		}
-		var validFajrTimes = times;
-		var fajrAdjustedLatitude = latitude;
+		var fajrIsAdjusted = false;
 
-		var noon = moment(originaltimes.solarNoon);
-		var sunset = moment(validSunriseTimes.sunset);
+		if(!moment(times.fajr).isValid()
+			|| moment(times.solarNoon).diff(moment(times.fajr), "hours") >= 10) {
+			times.fajr = moment(times.solarNoon).subtract(10, "hours").toDate();
+			times.isha = moment(times.solarNoon).add(10, "hours").toDate();
+			fajrIsAdjusted = true;
+		}
+		var maghribIsAdjusted = false;
+		if ((!moment(times.sunset).isValid() && !moment(times.fajr).isValid())
+			|| moment(times.sunset).diff(moment(times.solarNoon), "hours") >= 9) {
+			times.sunrise = moment(times.solarNoon).subtract(9, "hours").toDate();
+			times.sunset = moment(times.solarNoon).add(9, "hours").toDate();
+			maghribIsAdjusted = true;
+		}
+		var maghribIsAdjustedLater = false;
+		if ((!moment(times.sunset).isValid() && moment(times.fajr).isValid())
+			|| moment(times.sunset).diff(moment(times.solarNoon), "hours") <= 2) {
+			times.sunrise = moment(times.solarNoon).subtract(2, "hours").toDate();
+			times.sunset = moment(times.solarNoon).add(2, "hours").toDate();
+			maghribIsAdjustedLater = true;
+		}
+		 var fajrIsAdjustedEarlier = false;
+		// if (!moment(times.fajr).isValid() 
+		// 	|| moment(times.solarNoon).diff(moment(times.fajr), "hours") <= 3) {
+		// 	times.fajr = moment(times.solarNoon).subtract(3, "hours").toDate();
+		// 	times.isha = moment(times.solarNoon).add(3, "hours").toDate();
+		// 	fajrIsAdjustedEarlier = true;
+		// }
+
+
+		// while (Math.abs(latitude) > 10 && (
+		// 	!moment(times.sunrise).isValid()
+		// 	|| !this.hasNormalFullDaylightLength(times)
+		// )) {
+		// 	latitude = latitude + increment;
+		// 	times = SunCalc.getTimes(date, latitude, longitude);
+		// }
+		// var validSunriseTimes = times;
+		// var sunriseAdjustedLatitude = latitude;
+		// while (Math.abs(latitude) > 10 && (
+		// 	!moment(times.fajr).isValid()
+		// 	|| !this.hasNormalDayLength(times)
+		// )) {
+		// 	latitude = latitude + increment;
+		// 	times = SunCalc.getTimes(date, latitude, longitude);
+		// }
+//		var validFajrTimes = times;
+//		var fajrAdjustedLatitude = latitude;
+
+		var noon = moment(times.solarNoon);
+		var sunset = moment(times.sunset);
 		var minutesDifference = sunset.diff(noon, "minutes");
 		var midAfternoon = moment(noon).add(minutesDifference * 2.0 / 3.0, "minutes");
-		var timeFormat = "HH:mm:ss";
-		var moonAtIsha = SunCalc.getMoonIllumination(validFajrTimes.isha);
-		var ishaYesterday = moment(validFajrTimes.isha).subtract(1, 'd').toDate();;
+		var timeFormat = "HH:mm";
+		var moonAtIsha = SunCalc.getMoonIllumination(times.isha);
+		var ishaYesterday = moment(times.isha).subtract(1, 'd').toDate();;
 		var moonAtPreviousIsha = SunCalc.getMoonIllumination(ishaYesterday);
+		var moonAtMaghrib = SunCalc.getMoonIllumination(times.sunset);
+		var maghribYesterday = moment(times.sunset).subtract(1, 'd').toDate();;
+		var moonAtPreviousMaghrib = SunCalc.getMoonIllumination(maghribYesterday);
+        //adding 1 minute to each prayer time to correct for seconds truncation in time format
 		var response =
 			{
-				startOfLunarMonth: (moonAtPreviousIsha.phase > moonAtIsha.phase),
-				maghribIsAdjusted: validSunriseTimes.sunset.valueOf() != originaltimes.sunset.valueOf(),
-				fajrIsAdjusted: validFajrTimes.fajr.valueOf() != originaltimes.fajr.valueOf(),
-				unadjustedLatitude: unadjustedLatitude,
-				fajrAdjustedLatitude: fajrAdjustedLatitude,
-				sunriseAdjustedLatitude: sunriseAdjustedLatitude,
-				fajr: moment(validFajrTimes.fajr).utcOffset(utcOffset).format(timeFormat),
-				sunrise: moment(validSunriseTimes.sunrise).utcOffset(utcOffset).format(timeFormat),
-				zuhr: noon.utcOffset(utcOffset).format(timeFormat),
-				asr: midAfternoon.utcOffset(utcOffset).format(timeFormat),
-				maghrib: sunset.utcOffset(utcOffset).format(timeFormat),
-				isha: moment(validFajrTimes.isha).utcOffset(utcOffset).format(timeFormat)
+				startOfLunarMonth:(moonAtPreviousMaghrib.phase>moonAtMaghrib.phase),
+				maghribIsAdjusted: maghribIsAdjusted,
+				fajrIsAdjusted: fajrIsAdjusted,
+				maghribIsAdjustedLater: maghribIsAdjustedLater,
+				fajrIsAdjustedEarlier: fajrIsAdjustedEarlier,
+				fajr: moment(times.fajr).utcOffset(utcOffset).add(1,'m').format(timeFormat),
+				sunrise: moment(times.sunrise).utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+				zuhr: noon.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+				asr: midAfternoon.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+				maghrib: sunset.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+				isha: moment(times.isha).add(1, 'm').utcOffset(utcOffset).format(timeFormat)
 			};
+
+		// var response =
+		// 	{
+		// 		startOfLunarMonth:(moonAtPreviousMaghrib.phase>moonAtMaghrib.phase),
+		// 		// (moonAtPreviousIsha.phase > moonAtIsha.phase),
+		// 		maghribIsAdjusted: validSunriseTimes.sunset.valueOf() != originaltimes.sunset.valueOf(),
+		// 		fajrIsAdjusted: validFajrTimes.fajr.valueOf() != originaltimes.fajr.valueOf(),
+		// 		unadjustedLatitude: unadjustedLatitude,
+		// 		fajrAdjustedLatitude: fajrAdjustedLatitude,
+		// 		sunriseAdjustedLatitude: sunriseAdjustedLatitude,
+		// 		fajr: moment(validFajrTimes.fajr).utcOffset(utcOffset).add(1,'m').format(timeFormat),
+		// 		sunrise: moment(validSunriseTimes.sunrise).utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+		// 		zuhr: noon.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+		// 		asr: midAfternoon.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+		// 		maghrib: sunset.utcOffset(utcOffset).add(1, 'm').format(timeFormat),
+		// 		isha: moment(validFajrTimes.isha).add(1, 'm').utcOffset(utcOffset).format(timeFormat)
+		// 	};
 
 		return response;
 	}
 		
-	getDefaultTimeZone(date: string, latitude: number, longitude: number){
+	getDefaultTimeZone(date: Date, latitude: number, longitude: number){
 		return this.getTimeZone(date, latitude, longitude);
 	}
-	getPrayerTimes(date: string, latitude: number, longitude: number,
+	getPrayerTimes(date: Date, latitude: number, longitude: number,
 		timeZone:timeZoneInfo): prayerTimesForDay {
 
 		var self = this;
 	
 				var dateMoment = moment().startOf('d').add(12, 'h');
-				if (date != "" && moment(date, "YYYY-MM-DD").isValid()) {
-					dateMoment = moment(date, "YYYY-MM-DD").add(12, 'h');
+				if (date != null && moment(date).isValid()) {
+					dateMoment = moment(date).add(12, 'h');
 				}
 				var utcOffset = (timeZone.dstOffset + timeZone.rawOffset) / 3600.0;
 
@@ -154,9 +206,9 @@ export class PrayerTimesCalculatorService {
 					formatedDate:moment(dateMoment).format("ddd Do MMM"),
 					timeZoneName: timeZone.timeZoneName,
 					maghribIsAdjusted: times.maghribIsAdjusted,
+					maghribIsAdjustedLater: times.maghribIsAdjustedLater,
 					fajrIsAdjusted: times.fajrIsAdjusted,
-					fajrAdjustedLatitude: times.fajrAdjustedLatitude,
-					sunriseAdjustedLatitude: times.sunriseAdjustedLatitude,
+					fajrIsAdjustedEarlier: times.fajrIsAdjustedEarlier,
 					times:times
 				};
 
