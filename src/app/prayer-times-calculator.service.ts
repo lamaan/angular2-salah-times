@@ -18,6 +18,7 @@ export interface prayerTime
 
 export interface prayerTimesForDay {
 	startOfLunarMonth:boolean,
+	moonVisibility:number,
 	//moonPhaseAtIsha:number,
 	//lunarCalandarDayAtIsha: number,
 	date:Date,
@@ -87,24 +88,25 @@ export class PrayerTimesCalculatorService {
 		}
 //		var originaltimes = SunCalc.getTimes(date, latitude, longitude);
 		var times = SunCalc.getTimes(date, latitude, longitude);
+		var originalTimes = SunCalc.getTimes(date, latitude, longitude);
 		var fajrIsAdjusted = false;
 
-		if(!moment(times.fajr).isValid()
-			|| moment(times.solarNoon).diff(moment(times.fajr), "hours") >= 10) {
+		if(!moment(originalTimes.fajr).isValid()
+			|| moment(originalTimes.solarNoon).diff(moment(originalTimes.fajr), "hours") >= 10) {
 			times.fajr = moment(times.solarNoon).subtract(10, "hours").toDate();
 			times.isha = moment(times.solarNoon).add(10, "hours").toDate();
 			fajrIsAdjusted = true;
 		}
 		var maghribIsAdjusted = false;
-		if ((!moment(times.sunset).isValid() && !moment(times.fajr).isValid())
-			|| moment(times.sunset).diff(moment(times.solarNoon), "hours") >= 9) {
+		if ((!moment(originalTimes.sunset).isValid() && !moment(originalTimes.fajr).isValid())
+			|| moment(originalTimes.sunset).diff(moment(originalTimes.solarNoon), "hours") >= 9) {
 			times.sunrise = moment(times.solarNoon).subtract(9, "hours").toDate();
 			times.sunset = moment(times.solarNoon).add(9, "hours").toDate();
 			maghribIsAdjusted = true;
 		}
 		var maghribIsAdjustedLater = false;
-		if ((!moment(times.sunset).isValid() && moment(times.fajr).isValid())
-			|| moment(times.sunset).diff(moment(times.solarNoon), "hours") <= 2) {
+		if ((!moment(originalTimes.sunset).isValid() && moment(originalTimes.fajr).isValid())
+			|| moment(originalTimes.sunset).diff(moment(originalTimes.solarNoon), "hours") <= 2) {
 			times.sunrise = moment(times.solarNoon).subtract(2, "hours").toDate();
 			times.sunset = moment(times.solarNoon).add(2, "hours").toDate();
 			maghribIsAdjustedLater = true;
@@ -143,15 +145,34 @@ export class PrayerTimesCalculatorService {
 		var midAfternoon = moment(noon).add(minutesDifference * 2.0 / 3.0, "minutes");
 		var timeFormat = "HH:mm";
 		var moonAtIsha = SunCalc.getMoonIllumination(times.isha);
-		var ishaYesterday = moment(times.isha).subtract(1, 'd').toDate();;
-		var moonAtPreviousIsha = SunCalc.getMoonIllumination(ishaYesterday);
+		var isha1DaysAgo = moment(times.isha).subtract(1, 'd').toDate();
+		var isha2DaysAgo = moment(times.isha).subtract(2, 'd').toDate();
+		var isha3DaysAgo = moment(times.isha).subtract(3, 'd').toDate();
+		var moonAtPreviousIsha1DaysAgo = SunCalc.getMoonIllumination(isha1DaysAgo);
+		var moonAtPreviousIsha2DaysAgo = SunCalc.getMoonIllumination(isha2DaysAgo);
+		var moonAtPreviousIsha3DaysAgo = SunCalc.getMoonIllumination(isha3DaysAgo);
 		var moonAtMaghrib = SunCalc.getMoonIllumination(times.sunset);
-		var maghribYesterday = moment(times.sunset).subtract(1, 'd').toDate();;
-		var moonAtPreviousMaghrib = SunCalc.getMoonIllumination(maghribYesterday);
+		//var moonPositionAtMaghrib = SunCalc.getMoonPosition(times.sunset);
+		var moonPositionAtIsha= SunCalc.getMoonPosition(times.isha);
+		//1 day old moon at isha is deemed 100% visible
+		// var altitude = 0.0;
+		// if(!isNaN(moonPositionAtIsha.altitude)){
+		// 	altitude=moonPositionAtIsha.altitude;
+		// }
+		var moonVisibilityAtIsha = Math.min(1.0,moonAtIsha.phase*29.5306);
+		var moonVisibilityAtIshaYesterday = Math.min(1.0,moonAtPreviousIsha1DaysAgo.phase*29.5306);
+		var isStartOfLunarMonthYesterday=(moonAtPreviousIsha3DaysAgo.phase>moonAtPreviousIsha1DaysAgo.phase 
+			&& moonVisibilityAtIshaYesterday==1.0);
+		var startOfLunarMonthToday=(!isStartOfLunarMonthYesterday &&
+			moonAtPreviousIsha2DaysAgo.phase>moonAtIsha.phase && moonVisibilityAtIsha==1.0);
+				
+	//	var maghribYesterday = moment(times.sunset).subtract(1, 'd').toDate();;
+	//	var moonAtPreviousMaghrib = SunCalc.getMoonIllumination(maghribYesterday);
         //adding 1 minute to each prayer time to correct for seconds truncation in time format
 		var response =
 			{
-				startOfLunarMonth:(moonAtPreviousMaghrib.phase>moonAtMaghrib.phase),
+				moonVisibility:(moonVisibilityAtIsha*100.0).toFixed(1),
+				startOfLunarMonth:startOfLunarMonthToday,
 				maghribIsAdjusted: maghribIsAdjusted,
 				fajrIsAdjusted: fajrIsAdjusted,
 				maghribIsAdjustedLater: maghribIsAdjustedLater,
@@ -167,7 +188,7 @@ export class PrayerTimesCalculatorService {
 		// var response =
 		// 	{
 		// 		startOfLunarMonth:(moonAtPreviousMaghrib.phase>moonAtMaghrib.phase),
-		// 		// (moonAtPreviousIsha.phase > moonAtIsha.phase),
+		// 		// (moonAtPreviousIsha2DaysAgo.phase > moonAtIsha.phase),
 		// 		maghribIsAdjusted: validSunriseTimes.sunset.valueOf() != originaltimes.sunset.valueOf(),
 		// 		fajrIsAdjusted: validFajrTimes.fajr.valueOf() != originaltimes.fajr.valueOf(),
 		// 		unadjustedLatitude: unadjustedLatitude,
@@ -201,6 +222,7 @@ export class PrayerTimesCalculatorService {
 				SunCalc.addTime(-18, 'fajr', 'isha');
 				var times = self.getAdjustedTimes(latitude, longitude, dateMoment.toDate(), utcOffset);
 				return {
+					moonVisibility:times.moonVisibility,
 					startOfLunarMonth: times.startOfLunarMonth,
 					date: date,
 					formatedDate:moment(dateMoment).format("ddd Do MMM"),

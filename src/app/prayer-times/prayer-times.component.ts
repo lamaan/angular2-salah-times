@@ -54,19 +54,7 @@ declare var moment: any;
 		this.ishaAngle = 6;
 	}
 	ngAfterViewInit() {
-		var self = this;
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(p) {
-				self.latitude = p.coords.latitude;
-				self.longitude = p.coords.longitude;
-				self.placeQiblaOnMap();
-				self.getPrayerTimes();
-			},function(e){
-				self.placeQiblaOnMap();
-				self.getPrayerTimes();
-				console.log("could not get your current location:"+e.message)
-			});
-		}
+		this.resetLocation();
 	}
 	getFullDate() {
 		return moment(this.date).format("dddd Do MMMM");
@@ -74,6 +62,24 @@ declare var moment: any;
 	removeCalendar(){
 		this.numberOfDaysInCalendar = null;
 		this.buildCalendar();
+	}
+	resetLocation(){
+		var self = this;
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(p) {
+				self.latitude = p.coords.latitude;
+				self.longitude = p.coords.longitude;
+				self.placeQiblaOnMap();
+				self.getPrayerTimes();
+				self.buildCalendar();
+			},function(e){
+				self.placeQiblaOnMap();
+				self.getPrayerTimes();
+				self.buildCalendar();
+
+				console.log("could not get your current location:"+e.message)
+			});
+		}
 	}
 	searchForLocation(){
 		var self = this;
