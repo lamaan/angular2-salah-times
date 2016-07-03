@@ -11,12 +11,17 @@ import {
 } from 'angular2-google-maps/core';
 import { HTTP_PROVIDERS } from '@angular/http';
 import { Angular2SalahTimesAppComponent, environment } from './app/';
+import { APP_ROUTER_PROVIDERS } from './app/routes';
 
 if (environment.production) {
   enableProdMode();
 }
 
-bootstrap(Angular2SalahTimesAppComponent, [ANGULAR2_GOOGLE_MAPS_PROVIDERS, HTTP_PROVIDERS, DATEPICKER_DIRECTIVES,
+bootstrap(Angular2SalahTimesAppComponent, [
+	ANGULAR2_GOOGLE_MAPS_PROVIDERS, 
+	HTTP_PROVIDERS, 
+	DATEPICKER_DIRECTIVES,
+	APP_ROUTER_PROVIDERS,
 	provide(LazyMapsAPILoaderConfig, {
 		useFactory: () => {
 			let config = new LazyMapsAPILoaderConfig();

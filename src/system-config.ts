@@ -27,7 +27,7 @@ System.locate = function(load) {
         return address + System.cacheBust;
     });
 };
-System.cacheBust = '?v=' + 1.26;
+System.cacheBust = '?v=' + 1.27;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************
@@ -50,6 +50,7 @@ const barrels: string[] = [
   'app',
   'app/shared',
   'app/prayer-times',
+  'app/about-us',
   /** @cli-barrel */
 ];
 
