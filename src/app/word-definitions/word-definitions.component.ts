@@ -87,9 +87,15 @@ export class WordDefinitionsComponent implements OnInit, OnDestroy  {
            isADefinedWord:true
          },
          {
-           text:"and that Muhammad is Allah's messenger",
+           text:"and I see that Muhammad is the messenger of",
            isADefinedWord:false
-         }]
+         }
+         ,
+         {
+           text:"Allah",
+           isADefinedWord:true
+         }
+         ]
        }},
     { word:"Adult",
        definition:{
