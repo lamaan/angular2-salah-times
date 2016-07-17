@@ -43,7 +43,7 @@ export class WordDefinitionsComponent implements OnInit, OnDestroy  {
     { word:"Muslim",
        definition:{
          contents:[{
-           text:"A human being who has freely chooses to follow the religion of",
+           text:"A human being who freely chooses to follow the religion of",
            isADefinedWord:false
          },
          {
