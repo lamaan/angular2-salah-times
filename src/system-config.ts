@@ -51,6 +51,7 @@ const barrels: string[] = [
   'app/shared',
   'app/prayer-times',
   'app/about-us',
+  'app/word-definitions',
   /** @cli-barrel */
 ];
 

@@ -1,0 +1,18 @@
+<p>
+  word-definitions works!
+</p>
+<h4>
+	Type a word to see the accepted definition
+</h4>
+<div class="row">
+	<div class="col-md-6">
+		<div class="input-group">
+		<input class="form-control" type="text" [(ngModel)]="word" (ngModelChange)="wordChanged()"
+			placeholder="lookup a word definition"/>
+		</div>
+	</div>
+</div>	
+<h4>Definition</h4>
+<div>
+	{{definition}}
+</div>
