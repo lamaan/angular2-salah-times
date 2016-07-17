@@ -1,6 +1,4 @@
-<p>
-  word-definitions works!
-</p>
+
 <h4>
 	Type a word to see the accepted definition
 </h4>
@@ -14,5 +12,12 @@
 </div>	
 <h4>Definition</h4>
 <div>
-	{{definition}}
+	<span *ngFor="let part of definition.contents">
+		<span *ngIf="part.isADefinedWord">
+			<span (click)="goToWord(part.text)" class="defined-word">{{part.text}}</span>
+		</span>
+		<span *ngIf="!part.isADefinedWord">
+			{{part.text}}
+		</span>
+	</span>
 </div>
