@@ -27,7 +27,9 @@ export class WordDefinitionsComponent implements OnInit, OnDestroy  {
   constructor( 
   	private route:ActivatedRoute,
     private router:Router
-  	) {}
+  	) {
+    this.wordChanged();
+  }
  ;
 
   private getRouteParamsSubscribe:any;
@@ -106,9 +108,9 @@ export class WordDefinitionsComponent implements OnInit, OnDestroy  {
        }},
      ]
 
-  	 this.getRouteParamsSubscribe=this.route.params.subscribe(params=>{
-  	 	this.word=params['word'];
-  	 	this.wordChanged();
+  	  this.getRouteParamsSubscribe=this.route.params.subscribe(params=>{
+  	  	this.word=params['word'];
+  	  	this.wordChanged();
   	 });
   }
   wordChanged(){
