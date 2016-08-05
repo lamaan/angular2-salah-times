@@ -17,8 +17,8 @@ interface DefinitionText{
 @Component({
   //moduleId: module.id,
   selector: 'app-word-definitions',
-  templateUrl: './app/word-definitions/word-definitions.component.html',
-  styleUrls: ['./app/word-definitions/word-definitions.component.css']
+  templateUrl: './word-definitions.component.html',
+  styleUrls: ['./word-definitions.component.css']
 })
 export class WordDefinitionsComponent implements OnInit, OnDestroy  {
   public word:string;

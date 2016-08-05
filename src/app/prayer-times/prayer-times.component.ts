@@ -2,9 +2,6 @@ import {Component, AfterViewInit, ViewChild, ViewContainerRef} from '@angular/co
 import {NgZone} from '@angular/core'
 import {PrayerTimesCalculatorService, prayerTime, prayerTimesForDay, timeZoneInfo} from '../prayer-times-calculator.service';
 import {
-	MapsAPILoader, 
-	NoOpMapsAPILoader, 
-	LazyMapsAPILoader,
 	GoogleMapsAPIWrapper,
 	MouseEvent, 
 	ANGULAR2_GOOGLE_MAPS_PROVIDERS,  
@@ -17,8 +14,8 @@ declare var google: any;
 declare var moment: any;
 @Component({
 //  moduleId: module.id,
-	templateUrl: './app/prayer-times/prayer-times.component.html',
-  styleUrls: ['./app/prayer-times/prayer-times.component.css'],
+	templateUrl: './prayer-times.component.html',
+  styleUrls: ['./prayer-times.component.css'],
   selector: 'prayer-times',
   directives: [ANGULAR2_GOOGLE_MAPS_DIRECTIVES, DATEPICKER_DIRECTIVES, MODAL_DIRECTVES],
   providers: [PrayerTimesCalculatorService, GoogleMapsAPIWrapper],
