@@ -4,7 +4,9 @@ import {AlertComponent, DATEPICKER_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap
 import {
 	ANGULAR2_GOOGLE_MAPS_PROVIDERS,
 	ANGULAR2_GOOGLE_MAPS_DIRECTIVES,
-	LazyMapsAPILoaderConfig
+	LazyMapsAPILoaderConfig,
+	MapsAPILoader,
+	NoOpMapsAPILoader
 } from 'angular2-google-maps/core';
 
 import { HTTP_PROVIDERS } from '@angular/http';
@@ -20,6 +22,7 @@ bootstrap(Angular2SalahTimesAppComponent, [
 	HTTP_PROVIDERS, 
 	DATEPICKER_DIRECTIVES,
 	APP_ROUTER_PROVIDERS,
+	//provide(MapsAPILoader, {useClass: NoOpMapsAPILoader})
 	provide(LazyMapsAPILoaderConfig, {
 		useFactory: () => {
 			let config = new LazyMapsAPILoaderConfig();
