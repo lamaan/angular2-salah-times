@@ -10,11 +10,11 @@ import {
   async, inject
 } from '@angular/core/testing';
 
-import { WordDefinitionsComponent } from './word-definitions.component';
+import { TermDefinitionsComponent } from './term-definitions.component';
 
-describe('Component: WordDefinitions', () => {
+describe('Component: TermDefinitions', () => {
   it('should create an instance', () => {
-    let component = new WordDefinitionsComponent();
+    let component = new TermDefinitionsComponent();
     expect(component).toBeTruthy();
   });
 });
