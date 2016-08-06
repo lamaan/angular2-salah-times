@@ -53,10 +53,10 @@ declare var moment: any;
             zoom: 5,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        console.log("initialising map...");
+        // console.log("initialising map...");
         this.map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 		this.map.addListener('click', function(e){
-			console.log("clicked "+ JSON.stringify(e) );
+			// console.log("clicked "+ JSON.stringify(e) );
 			self.mapClicked(e);
 		});
 		this.resetLocation();
@@ -69,7 +69,7 @@ declare var moment: any;
 		this.buildCalendar();
 	}
 	resetLocation(){
-		console.log("resetting location on map"+this.map);
+		//console.log("resetting location on map"+this.map);
 		var self = this;
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
@@ -90,7 +90,7 @@ declare var moment: any;
 	}
 	searchForLocation(){
 		var self = this;
-		console.log("searching location on map"+this.map);
+		//console.log("searching location on map"+this.map);
 
 		self.locationNotFound = false;
 		if (self.searchLocation != null && self.searchLocation != '') {
@@ -133,7 +133,7 @@ declare var moment: any;
 	}
 	placeQiblaOnMap() {
 		var self = this;
-		console.log("placing qibla on map"+this.map);
+		// console.log("placing qibla on map"+this.map);
 
 		var qiblaLineCoords = [
 			{ lat: this.latitude, lng: this.longitude },
@@ -207,7 +207,7 @@ declare var moment: any;
 		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
 	}
 	mapClicked($event: any) {
-		console.log($event);
+		// console.log($event);
 		this.locationNotFound = false;
 		this.latitude = $event.latLng.lat();
 		this.longitude = $event.latLng.lng();
