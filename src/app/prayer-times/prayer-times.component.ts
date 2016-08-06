@@ -1,11 +1,7 @@
 import {Component, AfterViewInit, ViewChild, ViewContainerRef} from '@angular/core'
 import {NgZone} from '@angular/core'
 import {PrayerTimesCalculatorService, prayerTime, prayerTimesForDay, timeZoneInfo} from '../prayer-times-calculator.service';
-import {
-	GoogleMapsAPIWrapper,
-	MouseEvent, 
-	ANGULAR2_GOOGLE_MAPS_PROVIDERS,  
-	ANGULAR2_GOOGLE_MAPS_DIRECTIVES} from 'angular2-google-maps/core';
+
 import {AlertComponent, DATEPICKER_DIRECTIVES, MODAL_DIRECTVES} from 'ng2-bootstrap/ng2-bootstrap';
 import {BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
 import 'moment';
@@ -17,15 +13,13 @@ declare var moment: any;
 	templateUrl: './prayer-times.component.html',
   styleUrls: ['./prayer-times.component.css'],
   selector: 'prayer-times',
-  directives: [ANGULAR2_GOOGLE_MAPS_DIRECTIVES, DATEPICKER_DIRECTIVES, MODAL_DIRECTVES],
-  providers: [PrayerTimesCalculatorService, GoogleMapsAPIWrapper],
+  directives: [DATEPICKER_DIRECTIVES, MODAL_DIRECTVES],
+  providers: [PrayerTimesCalculatorService],
   viewProviders:[BS_VIEW_PROVIDERS],
 }) export class PrayerTimesComponent implements AfterViewInit {
-	@ViewChild('theMapDirective') theMapDirective: any;
 	date: Date;
 	latitude: number;
 	longitude: number;
-	//	utcOffset:number;
 	initialiseMap: any;
 	qiblaLine: any;
 	fajrAngle: number;
@@ -40,6 +34,7 @@ declare var moment: any;
 	searchLocation: string;
 	locationNotFound: boolean=false;
 	showNewMonthLegend: boolean;
+	map:any;
 	constructor(private prayerTimesCalculatorService: PrayerTimesCalculatorService,
 		private viewContainerRef: ViewContainerRef,
 		private ngZone: NgZone) {
@@ -49,8 +44,21 @@ declare var moment: any;
 		//this.utcOffset=moment().utcOffset()/60.0;
 		this.fajrAngle = 6;
 		this.ishaAngle = 6;
+
 	}
 	ngAfterViewInit() {
+		var self=this;
+		var mapProp = {
+            center: new google.maps.LatLng(this.latitude, this.longitude),
+            zoom: 5,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        console.log("initialising map...");
+        this.map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+		this.map.addListener('click', function(e){
+			console.log("clicked "+ JSON.stringify(e) );
+			self.mapClicked(e);
+		});
 		this.resetLocation();
 	}
 	getFullDate() {
@@ -61,6 +69,7 @@ declare var moment: any;
 		this.buildCalendar();
 	}
 	resetLocation(){
+		console.log("resetting location on map"+this.map);
 		var self = this;
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(p) {
@@ -77,54 +86,54 @@ declare var moment: any;
 				console.log("could not get your current location:"+e.message)
 			});
 		}
+		this.map.setZoom(10);
 	}
 	searchForLocation(){
 		var self = this;
+		console.log("searching location on map"+this.map);
 
 		self.locationNotFound = false;
 		if (self.searchLocation != null && self.searchLocation != '') {
-			self.theMapDirective._mapsWrapper.getMap().then(function(map) {
-				var geocoder = new google.maps.Geocoder;
-				var infowindow = new google.maps.InfoWindow;
-				var latlng = { lat: self.latitude, lng: self.longitude };
-				geocoder.geocode({ 'address': self.searchLocation }, function(results, status) {
-					if (status === google.maps.GeocoderStatus.OK) {
-						if (results[0]) {
-							self.locationFound = results[0].formatted_address;
-							self.latitude = results[0].geometry.location.lat();
-							self.longitude = results[0].geometry.location.lng();
-							self.placeQiblaOnMap();
-							self.getPrayerTimes();
-							self.buildCalendar();
-							self.searchLocation = '';
-						}
-					}
-					if (status === google.maps.GeocoderStatus.ZERO_RESULTS){
-						self.locationNotFound = true;
-					}
-					self.ngZone.run(function() { });
-				});
-			});
-		}
-	}
-	getLocationFound(){
-		var self = this;
-		self.theMapDirective._mapsWrapper.getMap().then(function(map) {
 			var geocoder = new google.maps.Geocoder;
 			var infowindow = new google.maps.InfoWindow;
 			var latlng = { lat: self.latitude, lng: self.longitude };
-			geocoder.geocode({ 'location': latlng }, function(results, status) {
+			geocoder.geocode({ 'address': self.searchLocation }, function(results, status) {
 				if (status === google.maps.GeocoderStatus.OK) {
-					if(results[0]){
+					if (results[0]) {
 						self.locationFound = results[0].formatted_address;
-						self.ngZone.run(function(){});
-					} 
+						self.latitude = results[0].geometry.location.lat();
+						self.longitude = results[0].geometry.location.lng();
+						self.placeQiblaOnMap();
+						self.getPrayerTimes();
+						self.buildCalendar();
+						self.searchLocation = '';
+						this.map.setZoom(10);
+					}
 				}
+				if (status === google.maps.GeocoderStatus.ZERO_RESULTS){
+					self.locationNotFound = true;
+				}
+				self.ngZone.run(function() { });
 			});
+		};
+	}
+	getLocationFound(){
+		var self = this;
+		var geocoder = new google.maps.Geocoder;
+		var infowindow = new google.maps.InfoWindow;
+		var latlng = { lat: self.latitude, lng: self.longitude };
+		geocoder.geocode({ 'location': latlng }, function(results, status) {
+			if (status === google.maps.GeocoderStatus.OK) {
+				if(results[0]){
+					self.locationFound = results[0].formatted_address;
+					self.ngZone.run(function(){});
+				} 
+			}
 		});
 	}
 	placeQiblaOnMap() {
 		var self = this;
+		console.log("placing qibla on map"+this.map);
 
 		var qiblaLineCoords = [
 			{ lat: this.latitude, lng: this.longitude },
@@ -133,18 +142,17 @@ declare var moment: any;
 		if (this.qiblaLine != null) {
 			this.qiblaLine.setMap(null);
 		}
-		this.theMapDirective._mapsWrapper.getMap().then(function(map) {
-			self.qiblaLine = new google.maps.Polyline({
-				path: qiblaLineCoords,
-				geodesic: true,
-				strokeColor: '#FF0000',
-				strokeOpacity: 1.0,
-				strokeWeight: 2
-			});
-			self.qiblaLine.setMap(map);
-			self.getLocationFound();
-
+		self.qiblaLine = new google.maps.Polyline({
+			path: qiblaLineCoords,
+			geodesic: true,
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2
 		});
+		self.qiblaLine.setMap(this.map);
+		this.map.setCenter({ lat: this.latitude, lng: this.longitude });
+
+		self.getLocationFound();
 	}
 	prayerTimes: prayerTime[]=[]
 	calendar: prayerTimesForDay[] = [];
@@ -198,10 +206,11 @@ declare var moment: any;
 		this.getPrayerTimes();
 		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
 	}
-	mapClicked($event: MouseEvent, theMapDirective: any) {
+	mapClicked($event: any) {
+		console.log($event);
 		this.locationNotFound = false;
-		this.latitude = $event.coords.lat;
-		this.longitude = $event.coords.lng;
+		this.latitude = $event.latLng.lat();
+		this.longitude = $event.latLng.lng();
 		this.placeQiblaOnMap();
 		this.getPrayerTimes();
 		this.getPrayerTimeTableForNextNDays(this.numberOfDaysInCalendar);
