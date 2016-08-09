@@ -26,7 +26,7 @@ nav a.active {
 		.tagline{
 		display: inline-block;
 	    padding-left: 30px;
-	    margin-top: 30px;
+	    margin-top: 55px;
 	}
 }
 @media (max-width:991px){
