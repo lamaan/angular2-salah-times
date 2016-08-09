@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute }       from '@angular/router';
-import {TermComponent} from '../term/term.component'
+import { TermComponent } from '../term/term.component';
 
 interface TermDefinition{
 	term:string,
