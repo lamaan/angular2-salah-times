@@ -9,8 +9,18 @@ constructor() {
  	// 		return {words:wordArray};
  	// 	})};
  	// });
- }
-getSurahs(){
+  }
+  getSurahs(){
 	return this.surahs;
+  }
+  translatedSurahs:any={
+  	"1":{"256":"There can be no coercion in true religion, good reasoning is free from such stumbling error."
+  	+" So whoever rejects oppressors and believes in God has grasped the most trustworthy hand hold"
+  	+" that can never break - and God hears and knows"}
+  }
+  translation(surah:string,verse:string){
+  	if(this.translatedSurahs[surah] && this.translatedSurahs[verse]){
+  		return this.translatedSurahs[verse];
+  	}
   }
 }

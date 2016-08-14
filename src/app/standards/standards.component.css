@@ -1,13 +1,9 @@
 .rule{
-	font-size: 14pt;
-}
-.explanation{
-	font-size: 10pt;
+	font-size: 14px;
 }
 ol { counter-reset: item }
-li { display: block;}
+li { display: block; }
 li:before { 
-	padding-top: 15px;
 	content: counters(item, ".") " "; 
 	counter-increment: item ;
 	float:left; padding-right:10px; 

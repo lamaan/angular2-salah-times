@@ -41,14 +41,7 @@ export class QuranReferenceComponent implements OnInit {
   	}
   	return "...";
   }
-  translatedSurahs:any={
 
-  }
-  translation(){
-  	if(this.translatedSurahs[this.surah] && this.translatedSurahs[this.verse]){
-  		return this.translatedSurahs[this.verse];
-  	}
-  }
   url(){
   	return 'http://www.recitequran.com/'+this.surah+':'+this.verse;
   }
